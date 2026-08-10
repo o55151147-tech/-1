@@ -149,6 +149,62 @@ RegisterCommand('scrapfind', function()
     QBCore.Functions.Notify('شوف كونسول F8 للهاشات', 'primary')
 end, false)
 
+-- ============ طاولة التصنيع ============
+
+CreateThread(function()
+    if not Config.CraftingTables or #Config.CraftingTables == 0 then return end
+
+    local uniqueModels = {}
+
+    for _, loc in ipairs(Config.CraftingTables) do
+        local model = GetHashKey(loc.prop)
+        RequestModel(model)
+        local attempts = 0
+        while not HasModelLoaded(model) and attempts < 100 do
+            Wait(10)
+            attempts = attempts + 1
+        end
+
+        if HasModelLoaded(model) then
+            local obj = CreateObject(model, loc.coords.x, loc.coords.y, loc.coords.z, false, false, false)
+            SetEntityHeading(obj, loc.heading or 0.0)
+            FreezeEntityPosition(obj, true)
+            SetEntityCollision(obj, true, true)
+        end
+
+        SetModelAsNoLongerNeeded(model)
+        uniqueModels[loc.prop] = true
+    end
+
+    local modelList = {}
+    for modelName in pairs(uniqueModels) do
+        modelList[#modelList + 1] = modelName
+    end
+
+    exports['qb-target']:AddTargetModel(modelList, {
+        options = {
+            {
+                icon = 'fas fa-hammer',
+                label = 'فتح ورشة التصنيع',
+                action = function()
+                    OpenCraftingMenu()
+                end,
+            },
+        },
+        distance = Config.TableInteractDistance,
+    })
+end)
+
+-- أمر مساعد يطبع إحداثيات موقعك الحالي بكونسول F8 عشان تحدد مكان طاولة التصنيع بالضبط
+RegisterCommand('getcoords', function()
+    local ped = PlayerPedId()
+    local coords = GetEntityCoords(ped)
+    local heading = GetEntityHeading(ped)
+
+    print(('^3[scrap-crafting]^0 coords = vector3(%.2f, %.2f, %.2f), heading = %.2f'):format(coords.x, coords.y, coords.z, heading))
+    QBCore.Functions.Notify('انسخ الإحداثيات من كونسول F8', 'primary')
+end, false)
+
 -- ============ قائمة التصنيع ============
 
 RegisterCommand(Config.Command, function()
