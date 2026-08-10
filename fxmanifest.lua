@@ -25,8 +25,9 @@ files {
     'html/img/arth-logo.png'
 }
 
+-- qb-inventory مو مدرج هنا لأن اسمه يختلف من سيرفر لسيرفر (مثلاً Arth-inventory)
+-- والكود يتعامل مع الأصناف عبر qb-core نفسه (Player.Functions) بغض النظر عن اسم مورد الإنفنتوري
 dependencies {
     'qb-core',
-    'qb-inventory',
     'qb-target'
 }
