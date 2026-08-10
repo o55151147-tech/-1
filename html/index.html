@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Crafting</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" class="hidden">
+        <div id="menu">
+
+            <div id="bg-watermark"></div>
+
+            <aside id="sidebar">
+                <div id="sidebar-top">
+                    <div id="brand">
+                        <img id="brand-logo" src="img/arth-logo.png" alt="ارث">
+                        <div id="brand-text">
+                            <h1>ورشة التصنيع</h1>
+                            <span id="brand-sub">منطقة ارث</span>
+                        </div>
+                    </div>
+                    <button id="closeBtn" title="إغلاق">✕</button>
+                </div>
+
+                <div id="search-box">
+                    <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <input id="searchInput" type="text" placeholder="ابحث عن عنصر...">
+                </div>
+
+                <nav id="categories"></nav>
+            </aside>
+
+            <main id="content">
+                <div id="items-grid"></div>
+
+                <section id="detail-panel" class="hidden">
+                    <button id="detailCloseBtn" title="رجوع">›</button>
+
+                    <div id="detail-icon"></div>
+
+                    <div id="detail-info">
+                        <h2 id="detail-name"></h2>
+                        <p id="detail-desc"></p>
+
+                        <div id="detail-requirements">
+                            <h3>المتطلبات</h3>
+                            <div id="requirements-list"></div>
+                        </div>
+
+                        <div id="detail-footer">
+                            <div id="qty-stepper">
+                                <button id="qtyMinus">−</button>
+                                <input id="qtyInput" type="text" value="1" inputmode="numeric">
+                                <button id="qtyPlus">+</button>
+                            </div>
+                            <button id="craftBtn" class="craft-btn">
+                                <span id="craftBtnLabel">تصنيع</span>
+                            </button>
+                        </div>
+
+                        <div id="progress-wrap" class="hidden">
+                            <div id="progress-bar"><div id="progress-fill"></div></div>
+                            <span id="progress-label">جاري التصنيع...</span>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="empty-state" class="hidden">
+                    <p>اختر عنصراً من القائمة لعرض تفاصيله</p>
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

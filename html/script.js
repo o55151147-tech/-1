@@ -1,0 +1,286 @@
+const app = document.getElementById('app');
+const itemsGrid = document.getElementById('items-grid');
+const categoriesEl = document.getElementById('categories');
+const searchInput = document.getElementById('searchInput');
+const closeBtn = document.getElementById('closeBtn');
+const toastContainer = document.getElementById('toast-container');
+
+const detailPanel = document.getElementById('detail-panel');
+const emptyState = document.getElementById('empty-state');
+const detailIcon = document.getElementById('detail-icon');
+const detailName = document.getElementById('detail-name');
+const detailDesc = document.getElementById('detail-desc');
+const requirementsList = document.getElementById('requirements-list');
+const qtyInput = document.getElementById('qtyInput');
+const qtyMinus = document.getElementById('qtyMinus');
+const qtyPlus = document.getElementById('qtyPlus');
+const craftBtn = document.getElementById('craftBtn');
+const craftBtnLabel = document.getElementById('craftBtnLabel');
+const progressWrap = document.getElementById('progress-wrap');
+const progressFill = document.getElementById('progress-fill');
+const progressLabel = document.getElementById('progress-label');
+
+const ICONS = {
+    lockpick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="16" r="4"/><path d="M9.5 13.5 18 5m0 0h-3.5M18 5v3.5m-3-1 3 3"/></svg>',
+    weapon_bat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 15 9a3 3 0 1 0-4-4L2 16z"/><path d="M13 6l5 5"/></svg>',
+    repairkit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3z"/></svg>',
+    bandage: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
+    binoculars: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="16" r="3.5"/><circle cx="17" cy="16" r="3.5"/><path d="M10.3 16h3.4M9 16V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/></svg>',
+    metalscrap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>',
+    plastic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/></svg>',
+    rubber: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>',
+    cloth: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5v4a3 3 0 0 0 3 3 3 3 0 0 0 0-6M20 5v4a3 3 0 0 1-3 3 3 3 0 0 1 0-6"/><path d="M8 6h8v14H8z"/></svg>',
+    copperwire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 4 12 2-6h3l2 4h2"/></svg>',
+    default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5"/></svg>',
+};
+
+const CATEGORY_META = {
+    all: { label: 'الكل', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>' },
+    tools: { label: 'أدوات', icon: ICONS.repairkit },
+    defense: { label: 'دفاع', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>' },
+    medical: { label: 'طبي', icon: ICONS.bandage },
+    utility: { label: 'منفعة', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' },
+};
+
+let allItems = [];
+let counts = {};
+let maxAmount = 10;
+let selectedItem = null;
+let currentCategory = 'all';
+let searchTerm = '';
+let isCrafting = false;
+
+function getIcon(name) {
+    return ICONS[name] || ICONS.default;
+}
+
+function getResourceName() {
+    return window.GetParentResourceName ? window.GetParentResourceName() : 'scrap-crafting';
+}
+
+function postNui(endpoint, data) {
+    return fetch(`https://${getResourceName()}/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify(data || {}),
+    });
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function hasEnough(item, qty) {
+    return item.ingredients.every((ing) => (counts[ing.item] ?? 0) >= ing.amount * qty);
+}
+
+function renderCategories() {
+    const present = new Set(allItems.map((i) => i.category || 'utility'));
+    const cats = ['all', ...Array.from(present)];
+
+    categoriesEl.innerHTML = '';
+    cats.forEach((cat) => {
+        const meta = CATEGORY_META[cat] || { label: cat, icon: ICONS.default };
+        const count = cat === 'all' ? allItems.length : allItems.filter((i) => (i.category || 'utility') === cat).length;
+
+        const btn = document.createElement('button');
+        btn.className = `category-btn ${cat === currentCategory ? 'active' : ''}`;
+        btn.innerHTML = `${meta.icon}<span>${meta.label}</span><span class="count">${count}</span>`;
+        btn.addEventListener('click', () => {
+            currentCategory = cat;
+            renderCategories();
+            renderList();
+        });
+        categoriesEl.appendChild(btn);
+    });
+}
+
+function getFilteredItems() {
+    return allItems.filter((item) => {
+        const matchesCategory = currentCategory === 'all' || (item.category || 'utility') === currentCategory;
+        const matchesSearch = !searchTerm || item.label.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
+}
+
+function renderList() {
+    const filtered = getFilteredItems();
+    itemsGrid.innerHTML = '';
+
+    filtered.forEach((item) => {
+        const row = document.createElement('div');
+        row.className = `item-row ${selectedItem && selectedItem.name === item.name ? 'selected' : ''}`;
+        const craftable = hasEnough(item, 1);
+        const categoryLabel = (CATEGORY_META[item.category] || {}).label || '';
+
+        row.innerHTML = `
+            <div class="row-icon">${getIcon(item.name)}</div>
+            <div class="row-text">
+                <div class="row-name">${item.label}</div>
+                <div class="row-sub">${categoryLabel} · تصنع ${item.amount}</div>
+            </div>
+            <div class="craftable-dot ${craftable ? 'ok' : ''}"></div>
+        `;
+
+        row.addEventListener('click', () => selectItem(item.name));
+        itemsGrid.appendChild(row);
+    });
+
+    if (filtered.length === 0) {
+        itemsGrid.innerHTML = '<div style="color: var(--text-dim); font-size: 12.5px; text-align:center; padding: 20px;">لا توجد عناصر مطابقة</div>';
+    }
+}
+
+function selectItem(name) {
+    selectedItem = allItems.find((i) => i.name === name) || null;
+    qtyInput.value = 1;
+    renderList();
+    renderDetail();
+}
+
+function renderDetail() {
+    if (!selectedItem) {
+        detailPanel.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+    detailPanel.classList.remove('hidden');
+
+    detailIcon.innerHTML = getIcon(selectedItem.name);
+    detailName.textContent = selectedItem.label;
+    detailDesc.textContent = selectedItem.description || '';
+
+    const qty = getQty();
+    requirementsList.innerHTML = '';
+    selectedItem.ingredients.forEach((ing) => {
+        const have = counts[ing.item] ?? 0;
+        const need = ing.amount * qty;
+        const ok = have >= need;
+
+        const row = document.createElement('div');
+        row.className = 'req-item';
+        row.innerHTML = `
+            <div class="req-icon">${getIcon(ing.item)}</div>
+            <div class="req-name">${ing.item}</div>
+            <div class="req-count ${ok ? 'ok' : 'missing'}">${have}/${need}</div>
+        `;
+        requirementsList.appendChild(row);
+    });
+
+    const canCraft = hasEnough(selectedItem, qty) && !isCrafting;
+    craftBtn.disabled = !canCraft;
+    craftBtnLabel.textContent = isCrafting ? 'جاري التصنيع...' : `تصنيع (يعطي ${selectedItem.amount * qty})`;
+}
+
+function getQty() {
+    let qty = parseInt(qtyInput.value, 10);
+    if (isNaN(qty) || qty < 1) qty = 1;
+    if (qty > maxAmount) qty = maxAmount;
+    return qty;
+}
+
+function setQty(qty) {
+    if (qty < 1) qty = 1;
+    if (qty > maxAmount) qty = maxAmount;
+    qtyInput.value = qty;
+    renderDetail();
+}
+
+qtyMinus.addEventListener('click', () => setQty(getQty() - 1));
+qtyPlus.addEventListener('click', () => setQty(getQty() + 1));
+qtyInput.addEventListener('change', () => setQty(getQty()));
+
+searchInput.addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    renderList();
+});
+
+craftBtn.addEventListener('click', () => {
+    if (!selectedItem || craftBtn.disabled || isCrafting) return;
+
+    const qty = getQty();
+    const craftTimeMs = Math.min((selectedItem.time || 5000) * qty, 60000);
+
+    isCrafting = true;
+    craftBtn.disabled = true;
+    craftBtnLabel.textContent = 'جاري التصنيع...';
+    progressWrap.classList.remove('hidden');
+    progressLabel.textContent = `جاري تصنيع ${selectedItem.label}...`;
+    progressFill.style.transition = 'none';
+    progressFill.style.width = '0%';
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            progressFill.style.transition = `width ${craftTimeMs}ms linear`;
+            progressFill.style.width = '100%';
+        });
+    });
+
+    postNui('craft', { item: selectedItem.name, amount: qty });
+});
+
+function openMenu(data) {
+    allItems = data.items || [];
+    counts = data.counts || {};
+    maxAmount = data.maxAmount || 10;
+    currentCategory = 'all';
+    searchTerm = '';
+    isCrafting = false;
+    searchInput.value = '';
+
+    app.classList.remove('hidden');
+    renderCategories();
+    renderList();
+
+    if (allItems.length > 0) {
+        selectItem(allItems[0].name);
+    } else {
+        selectedItem = null;
+        renderDetail();
+    }
+}
+
+function closeMenu() {
+    app.classList.add('hidden');
+}
+
+closeBtn.addEventListener('click', () => {
+    closeMenu();
+    postNui('close');
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeMenu();
+        postNui('close');
+    }
+});
+
+window.addEventListener('message', (event) => {
+    const data = event.data;
+
+    switch (data.action) {
+        case 'open':
+            openMenu(data);
+            break;
+        case 'close':
+            closeMenu();
+            break;
+        case 'craftResult':
+            isCrafting = false;
+            counts = data.counts || counts;
+            progressWrap.classList.add('hidden');
+            progressFill.style.transition = 'none';
+            progressFill.style.width = '0%';
+            showToast(data.message, data.success ? 'success' : 'error');
+            renderList();
+            renderDetail();
+            break;
+    }
+});
