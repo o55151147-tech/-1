@@ -60,6 +60,95 @@ function SearchVehicleForScrap(vehicle)
     end)
 end
 
+-- ============ تفتيش حطام السيارات الثابت (props بمقابر الخردة) ============
+
+local searchedProps = {}
+
+CreateThread(function()
+    if not Config.ScrapProps or #Config.ScrapProps == 0 then return end
+
+    exports['qb-target']:AddTargetModel(Config.ScrapProps, {
+        options = {
+            {
+                icon = 'fas fa-search',
+                label = 'تفتيش عن سكراب',
+                action = function(entity)
+                    SearchWreckForScrap(entity)
+                end,
+                canInteract = function(entity)
+                    return DoesEntityExist(entity) and not isBusy
+                end,
+            },
+        },
+        distance = Config.MaxSearchDistance,
+    })
+end)
+
+function SearchWreckForScrap(entity)
+    if isBusy or not DoesEntityExist(entity) then return end
+
+    local lastSearch = searchedProps[entity]
+    if lastSearch and (GetGameTimer() - lastSearch) < (Config.VehicleCooldown * 1000) then
+        QBCore.Functions.Notify('قمت بتفتيش هذا الحطام مؤخراً', 'error')
+        return
+    end
+
+    local ped = PlayerPedId()
+    isBusy = true
+    TaskTurnPedToFaceEntity(ped, entity, 1000)
+    Wait(500)
+
+    QBCore.Functions.Progressbar('search_wreck_scrap', 'جاري تفتيش الحطام...', Config.SearchTime, false, true, {
+        disableMovement = true,
+        disableCarMovement = true,
+        disableMouse = false,
+        disableCombat = true,
+    }, {
+        animDict = 'mini@repair',
+        anim = 'fixing_a_ped',
+        flags = 16,
+    }, {}, {}, function() -- Done
+        ClearPedTasks(ped)
+        isBusy = false
+        searchedProps[entity] = GetGameTimer()
+        TriggerServerEvent('scrap-crafting:server:givePropScrapReward')
+    end, function() -- Cancel
+        ClearPedTasks(ped)
+        isBusy = false
+        QBCore.Functions.Notify('تم إلغاء التفتيش', 'error')
+    end)
+end
+
+-- أمر تشخيصي: قف جنب أي غرض ما يشتغل عليه التفتيش، شغّل /scrapfind
+-- وشوف الهاشات بكونسول F8 عشان تعرف اسم الموديل الصحيح وتضيفه بـ Config.ScrapProps
+RegisterCommand('scrapfind', function()
+    local ped = PlayerPedId()
+    local coords = GetEntityCoords(ped)
+    local objects = GetGamePool('CObject')
+    local found = {}
+
+    for _, obj in ipairs(objects) do
+        local dist = #(coords - GetEntityCoords(obj))
+        if dist < 6.0 then
+            table.insert(found, { model = GetEntityModel(obj), dist = dist })
+        end
+    end
+
+    if #found == 0 then
+        QBCore.Functions.Notify('ما فيه أغراض قريبة منك', 'error')
+        return
+    end
+
+    table.sort(found, function(a, b) return a.dist < b.dist end)
+
+    print('^3[scrap-crafting]^0 أقرب موديلات حولك (استخدم هاش الموديل عشان تلقى اسمه بموقع gtax.dev/browser/props):')
+    for i = 1, math.min(#found, 10) do
+        print(('  #%d  model hash: %s   distance: %.2f'):format(i, found[i].model, found[i].dist))
+    end
+
+    QBCore.Functions.Notify('شوف كونسول F8 للهاشات', 'primary')
+end, false)
+
 -- ============ قائمة التصنيع ============
 
 RegisterCommand(Config.Command, function()

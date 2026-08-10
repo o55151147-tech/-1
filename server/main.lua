@@ -1,22 +1,10 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
--- ============ إعطاء مكافأة السكراب بعد تفتيش مركبة ============
+-- ============ إعطاء مكافأة السكراب (مشترك بين المركبات والحطام الثابت) ============
 
-RegisterNetEvent('scrap-crafting:server:giveScrapReward', function(netId)
-    local src = source
+local function GiveScrapRewards(src)
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then return end
-
-    local vehicle = NetworkGetEntityFromNetworkId(netId)
-    if not DoesEntityExist(vehicle) then return end
-
-    -- تحقق مسافة سيرفر-سايد لمنع استدعاء الحدث مباشرة بدون تفاعل فعلي
-    local ped = GetPlayerPed(src)
-    local pedCoords = GetEntityCoords(ped)
-    local vehCoords = GetEntityCoords(vehicle)
-    if #(pedCoords - vehCoords) > (Config.MaxSearchDistance + 3.0) then
-        return
-    end
 
     local given = {}
     for _, scrap in ipairs(Config.ScrapItems) do
@@ -37,6 +25,43 @@ RegisterNetEvent('scrap-crafting:server:giveScrapReward', function(netId)
     else
         TriggerClientEvent('QBCore:Notify', src, 'ما لقيت شي مفيد هذي المرة', 'error')
     end
+end
+
+RegisterNetEvent('scrap-crafting:server:giveScrapReward', function(netId)
+    local src = source
+
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not DoesEntityExist(vehicle) then return end
+
+    -- تحقق مسافة سيرفر-سايد لمنع استدعاء الحدث مباشرة بدون تفاعل فعلي
+    local ped = GetPlayerPed(src)
+    local pedCoords = GetEntityCoords(ped)
+    local vehCoords = GetEntityCoords(vehicle)
+    if #(pedCoords - vehCoords) > (Config.MaxSearchDistance + 3.0) then
+        return
+    end
+
+    GiveScrapRewards(src)
+end)
+
+-- حطام مقابر الخردة (props) ثابت بالخريطة ومالها netId، فنعتمد على كولداون
+-- بسيط لكل لاعب بدل التحقق من موقع الغرض نفسه
+local lastPropSearch = {}
+
+RegisterNetEvent('scrap-crafting:server:givePropScrapReward', function()
+    local src = source
+
+    local last = lastPropSearch[src]
+    if last and (os.time() - last) < math.floor(Config.SearchTime / 1000) then
+        return
+    end
+    lastPropSearch[src] = os.time()
+
+    GiveScrapRewards(src)
+end)
+
+AddEventHandler('playerDropped', function()
+    lastPropSearch[source] = nil
 end)
 
 -- ============ التصنيع ============

@@ -15,6 +15,29 @@ Config.VehicleCooldown = 300
 -- أقصى عدد يقدر اللاعب يصنعه دفعة وحدة من نفس العنصر
 Config.MaxCraftAmount = 10
 
+-- موديلات حطام السيارات الثابتة (props) اللي تقدر تفتشها عن سكراب، مثل اللي بمقابر الخردة
+-- هذي موديلات فانيلا رسمية باللعبة. لو خريطتك تستخدم موديلات مخصصة (custom junkyard map)
+-- شغّل الأمر /scrapfind وانت واقف جنب الحطام عشان تطلع لك الهاشات بالكونسول (F8) وتضيفها هنا
+Config.ScrapProps = {
+    'prop_rub_buswreck_0',
+    'prop_rub_carwreck_1',
+    'prop_rub_carwreck_2',
+    'prop_rub_carwreck_3',
+    'prop_rub_carwreck_4',
+    'prop_rub_carwreck_5',
+    'prop_rub_carwreck_6',
+    'prop_rub_carwreck_7',
+    'prop_rub_carwreck_8',
+    'prop_rub_carwreck_9',
+    'prop_rub_carwreck_10',
+    'prop_rub_carwreck_11',
+    'prop_rub_carwreck_12',
+    'prop_rub_carwreck_13',
+    'prop_rub_carwreck_14',
+    'prop_rub_carwreck_15',
+    'prop_rub_carwreck_16',
+}
+
 -- المواد اللي ممكن تطلع من تفتيش مركبة، كل مادة عندها نسبة احتمال مستقلة
 -- تأكد إن كل item موجود أصلاً بـ qb-core/shared/items.lua
 Config.ScrapItems = {
