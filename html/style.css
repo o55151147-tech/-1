@@ -43,29 +43,16 @@ html, body {
 }
 
 #menu {
-    width: 960px;
-    height: 600px;
+    width: 1180px;
+    height: 720px;
     display: flex;
     position: relative;
-    background: linear-gradient(160deg, rgba(15, 12, 9, 0.9) 0%, rgba(22, 17, 11, 0.9) 100%);
+    background: linear-gradient(160deg, #17130e 0%, #100d09 100%);
     border: 1px solid var(--panel-border);
     border-top: 2px solid var(--brown);
     border-radius: 16px;
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 0 60px rgba(74, 44, 20, 0.08);
     overflow: hidden;
-}
-
-#bg-watermark {
-    position: absolute;
-    inset: 0;
-    background-image: url('img/arth-logo.png');
-    background-repeat: no-repeat;
-    background-position: 62% 50%;
-    background-size: 640px;
-    opacity: 0.07;
-    filter: grayscale(1) brightness(1.6);
-    pointer-events: none;
-    z-index: 0;
 }
 
 #sidebar, #content {
