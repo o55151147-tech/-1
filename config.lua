@@ -8,7 +8,7 @@ Config.Command = 'craft'
 -- تقدر تضيف أكثر من طاولة بأكثر من موقع
 Config.CraftingTables = {
     {
-        coords = vector3(0.0, 0.0, 0.0), -- غيّرها لموقعك الفعلي
+        coords = vector3(2194.55, 5594.24, 53.76),
         heading = 0.0,
         prop = 'prop_tool_bench02_ld',
     },
