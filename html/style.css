@@ -1,10 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+@font-face {
+    font-family: 'Estedad';
+    src: url('fonts/Estedad-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Estedad';
+    src: url('fonts/Estedad-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Estedad';
+    src: url('fonts/Estedad-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Estedad';
+    src: url('fonts/Estedad-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-display: swap;
+}
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'Estedad', 'Segoe UI', Tahoma, sans-serif;
 }
 
 :root {
@@ -534,7 +560,7 @@ html, body {
     padding: 10px 20px;
     border-radius: 10px;
     color: #fff;
-    font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'Estedad', 'Segoe UI', Tahoma, sans-serif;
     font-size: 13px;
     font-weight: 700;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);

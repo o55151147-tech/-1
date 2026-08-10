@@ -22,7 +22,11 @@ files {
     'html/index.html',
     'html/style.css',
     'html/script.js',
-    'html/img/arth-logo.png'
+    'html/img/arth-logo.png',
+    'html/fonts/Estedad-Regular.ttf',
+    'html/fonts/Estedad-SemiBold.ttf',
+    'html/fonts/Estedad-Bold.ttf',
+    'html/fonts/Estedad-ExtraBold.ttf'
 }
 
 -- qb-inventory مو مدرج هنا لأن اسمه يختلف من سيرفر لسيرفر (مثلاً Arth-inventory)
