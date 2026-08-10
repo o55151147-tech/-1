@@ -47,9 +47,7 @@ html, body {
     height: 600px;
     display: flex;
     position: relative;
-    background: linear-gradient(160deg, rgba(20, 16, 11, 0.82) 0%, rgba(30, 23, 14, 0.82) 100%);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    background: linear-gradient(160deg, rgba(15, 12, 9, 0.9) 0%, rgba(22, 17, 11, 0.9) 100%);
     border: 1px solid var(--panel-border);
     border-top: 2px solid var(--brown);
     border-radius: 16px;
