@@ -1,12 +1,13 @@
 const app = document.getElementById('app');
 const itemsGrid = document.getElementById('items-grid');
-const categoriesEl = document.getElementById('categories');
+const emptyState = document.getElementById('empty-state');
 const searchInput = document.getElementById('searchInput');
 const closeBtn = document.getElementById('closeBtn');
 const toastContainer = document.getElementById('toast-container');
 
-const detailPanel = document.getElementById('detail-panel');
-const emptyState = document.getElementById('empty-state');
+const detailModal = document.getElementById('detail-modal');
+const detailModalBackdrop = document.getElementById('detail-modal-backdrop');
+const detailCloseBtn = document.getElementById('detailCloseBtn');
 const detailIcon = document.getElementById('detail-icon');
 const detailName = document.getElementById('detail-name');
 const detailDesc = document.getElementById('detail-desc');
@@ -34,19 +35,17 @@ const ICONS = {
     default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5"/></svg>',
 };
 
-const CATEGORY_META = {
-    all: { label: 'الكل', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>' },
-    tools: { label: 'أدوات', icon: ICONS.repairkit },
-    defense: { label: 'دفاع', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>' },
-    medical: { label: 'طبي', icon: ICONS.bandage },
-    utility: { label: 'منفعة', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' },
+const CATEGORY_LABELS = {
+    tools: 'أدوات',
+    defense: 'دفاع',
+    medical: 'طبي',
+    utility: 'منفعة',
 };
 
 let allItems = [];
 let counts = {};
 let maxAmount = 10;
 let selectedItem = null;
-let currentCategory = 'all';
 let searchTerm = '';
 let isCrafting = false;
 
@@ -78,79 +77,58 @@ function hasEnough(item, qty) {
     return item.ingredients.every((ing) => (counts[ing.item] ?? 0) >= ing.amount * qty);
 }
 
-function renderCategories() {
-    const present = new Set(allItems.map((i) => i.category || 'utility'));
-    const cats = ['all', ...Array.from(present)];
-
-    categoriesEl.innerHTML = '';
-    cats.forEach((cat) => {
-        const meta = CATEGORY_META[cat] || { label: cat, icon: ICONS.default };
-        const count = cat === 'all' ? allItems.length : allItems.filter((i) => (i.category || 'utility') === cat).length;
-
-        const btn = document.createElement('button');
-        btn.className = `category-btn ${cat === currentCategory ? 'active' : ''}`;
-        btn.innerHTML = `${meta.icon}<span>${meta.label}</span><span class="count">${count}</span>`;
-        btn.addEventListener('click', () => {
-            currentCategory = cat;
-            renderCategories();
-            renderList();
-        });
-        categoriesEl.appendChild(btn);
-    });
-}
-
 function getFilteredItems() {
-    return allItems.filter((item) => {
-        const matchesCategory = currentCategory === 'all' || (item.category || 'utility') === currentCategory;
-        const matchesSearch = !searchTerm || item.label.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesCategory && matchesSearch;
-    });
+    if (!searchTerm) return allItems;
+    return allItems.filter((item) => item.label.toLowerCase().includes(searchTerm.toLowerCase()));
 }
 
 function renderList() {
     const filtered = getFilteredItems();
     itemsGrid.innerHTML = '';
 
-    filtered.forEach((item) => {
-        const row = document.createElement('div');
-        row.className = `item-row ${selectedItem && selectedItem.name === item.name ? 'selected' : ''}`;
-        const craftable = hasEnough(item, 1);
-        const categoryLabel = (CATEGORY_META[item.category] || {}).label || '';
-
-        row.innerHTML = `
-            <div class="row-icon">${getIcon(item.name)}</div>
-            <div class="row-text">
-                <div class="row-name">${item.label}</div>
-                <div class="row-sub">${categoryLabel} · تصنع ${item.amount}</div>
-            </div>
-            <div class="craftable-dot ${craftable ? 'ok' : ''}"></div>
-        `;
-
-        row.addEventListener('click', () => selectItem(item.name));
-        itemsGrid.appendChild(row);
-    });
-
     if (filtered.length === 0) {
-        itemsGrid.innerHTML = '<div style="color: var(--text-dim); font-size: 12.5px; text-align:center; padding: 20px;">لا توجد عناصر مطابقة</div>';
-    }
-}
-
-function selectItem(name) {
-    selectedItem = allItems.find((i) => i.name === name) || null;
-    qtyInput.value = 1;
-    renderList();
-    renderDetail();
-}
-
-function renderDetail() {
-    if (!selectedItem) {
-        detailPanel.classList.add('hidden');
+        itemsGrid.classList.add('hidden');
         emptyState.classList.remove('hidden');
         return;
     }
 
+    itemsGrid.classList.remove('hidden');
     emptyState.classList.add('hidden');
-    detailPanel.classList.remove('hidden');
+
+    filtered.forEach((item) => {
+        const craftable = hasEnough(item, 1);
+        const categoryLabel = CATEGORY_LABELS[item.category] || '';
+
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+            <div class="craftable-dot ${craftable ? 'ok' : ''}"></div>
+            <div class="card-icon">${getIcon(item.name)}</div>
+            <div class="card-name">${item.label}</div>
+            <div class="card-sub">${categoryLabel} · تصنع ${item.amount}</div>
+        `;
+
+        card.addEventListener('click', () => openDetail(item.name));
+        itemsGrid.appendChild(card);
+    });
+}
+
+function openDetail(name) {
+    selectedItem = allItems.find((i) => i.name === name) || null;
+    if (!selectedItem) return;
+
+    qtyInput.value = 1;
+    detailModal.classList.remove('hidden');
+    renderDetail();
+}
+
+function closeDetail() {
+    detailModal.classList.add('hidden');
+    selectedItem = null;
+}
+
+function renderDetail() {
+    if (!selectedItem) return;
 
     detailIcon.innerHTML = getIcon(selectedItem.name);
     detailName.textContent = selectedItem.label;
@@ -196,6 +174,9 @@ qtyMinus.addEventListener('click', () => setQty(getQty() - 1));
 qtyPlus.addEventListener('click', () => setQty(getQty() + 1));
 qtyInput.addEventListener('change', () => setQty(getQty()));
 
+detailCloseBtn.addEventListener('click', closeDetail);
+detailModalBackdrop.addEventListener('click', closeDetail);
+
 searchInput.addEventListener('input', (e) => {
     searchTerm = e.target.value;
     renderList();
@@ -229,25 +210,18 @@ function openMenu(data) {
     allItems = data.items || [];
     counts = data.counts || {};
     maxAmount = data.maxAmount || 10;
-    currentCategory = 'all';
     searchTerm = '';
     isCrafting = false;
     searchInput.value = '';
 
     app.classList.remove('hidden');
-    renderCategories();
+    closeDetail();
     renderList();
-
-    if (allItems.length > 0) {
-        selectItem(allItems[0].name);
-    } else {
-        selectedItem = null;
-        renderDetail();
-    }
 }
 
 function closeMenu() {
     app.classList.add('hidden');
+    closeDetail();
 }
 
 closeBtn.addEventListener('click', () => {
@@ -256,10 +230,15 @@ closeBtn.addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeMenu();
-        postNui('close');
+    if (e.key !== 'Escape') return;
+
+    if (!detailModal.classList.contains('hidden')) {
+        closeDetail();
+        return;
     }
+
+    closeMenu();
+    postNui('close');
 });
 
 window.addEventListener('message', (event) => {
@@ -280,7 +259,7 @@ window.addEventListener('message', (event) => {
             progressFill.style.width = '0%';
             showToast(data.message, data.success ? 'success' : 'error');
             renderList();
-            renderDetail();
+            if (selectedItem) renderDetail();
             break;
     }
 });

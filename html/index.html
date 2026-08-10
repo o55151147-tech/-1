@@ -27,15 +27,21 @@
                     <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <input id="searchInput" type="text" placeholder="ابحث عن عنصر...">
                 </div>
-
-                <nav id="categories"></nav>
             </aside>
 
             <main id="content">
                 <div id="items-grid"></div>
 
-                <section id="detail-panel" class="hidden">
-                    <button id="detailCloseBtn" title="رجوع">›</button>
+                <div id="empty-state" class="hidden">
+                    <p>لا توجد عناصر مطابقة</p>
+                </div>
+            </main>
+
+            <div id="detail-modal" class="hidden">
+                <div id="detail-modal-backdrop"></div>
+
+                <section id="detail-panel">
+                    <button id="detailCloseBtn" title="إغلاق">✕</button>
 
                     <div id="detail-icon"></div>
 
@@ -65,11 +71,7 @@
                         </div>
                     </div>
                 </section>
-
-                <div id="empty-state" class="hidden">
-                    <p>اختر عنصراً من القائمة لعرض تفاصيله</p>
-                </div>
-            </main>
+            </div>
 
         </div>
     </div>

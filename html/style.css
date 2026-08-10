@@ -177,157 +177,146 @@ html, body {
     color: var(--text-dim);
 }
 
-#categories {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    overflow-y: auto;
-}
-
-.category-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: transparent;
-    border: none;
-    color: var(--text-dim);
-    text-align: right;
-    font-family: inherit;
-    padding: 10px 12px;
-    border-radius: 9px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-}
-
-.category-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text);
-}
-
-.category-btn.active {
-    background: var(--accent-soft);
-    color: var(--accent);
-}
-
-.category-btn .count {
-    margin-right: auto;
-    font-size: 11px;
-    opacity: 0.6;
-}
-
 /* ---------- Content ---------- */
 
 #content {
     flex: 1;
     display: flex;
     min-width: 0;
-}
-
-#items-grid {
-    width: 320px;
-    flex-shrink: 0;
-    overflow-y: auto;
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    border-left: 1px solid var(--panel-border);
-}
-
-.item-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 12px;
-    padding: 10px;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s, transform 0.1s;
-}
-
-.item-row:hover {
-    border-color: rgba(207, 207, 207, 0.4);
-    transform: translateY(-1px);
-}
-
-.item-row.selected {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-}
-
-.item-row .row-icon {
-    width: 42px;
-    height: 42px;
-    flex-shrink: 0;
-    border-radius: 9px;
-    background: rgba(255, 255, 255, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.item-row .row-icon svg {
-    width: 22px;
-    height: 22px;
-    color: var(--accent);
-}
-
-.row-text {
-    flex: 1;
-    min-width: 0;
-}
-
-.row-text .row-name {
-    color: var(--text);
-    font-size: 13.5px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.row-text .row-sub {
-    color: var(--text-dim);
-    font-size: 11px;
-    margin-top: 2px;
-}
-
-.craftable-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    background: var(--bad);
-}
-
-.craftable-dot.ok {
-    background: var(--ok);
-}
-
-/* ---------- Detail panel ---------- */
-
-#detail-panel, #empty-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 34px 30px;
-    overflow-y: auto;
     position: relative;
 }
 
+#items-grid {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    align-content: start;
+}
+
 #empty-state {
+    flex: 1;
+    display: flex;
     align-items: center;
     justify-content: center;
     color: var(--text-dim);
     font-size: 13px;
 }
 
+.item-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 18px 12px 14px;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.item-card:hover {
+    border-color: rgba(207, 207, 207, 0.4);
+    transform: translateY(-2px);
+}
+
+.item-card .card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-card .card-icon svg {
+    width: 28px;
+    height: 28px;
+    color: var(--accent);
+}
+
+.item-card .card-name {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.item-card .card-sub {
+    color: var(--text-dim);
+    font-size: 10.5px;
+}
+
+.craftable-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bad);
+    position: absolute;
+    top: 12px;
+    left: 12px;
+}
+
+.craftable-dot.ok {
+    background: var(--ok);
+}
+
+/* ---------- Detail modal ---------- */
+
+#detail-modal {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#detail-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+#detail-panel {
+    position: relative;
+    width: 380px;
+    max-height: 85%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 26px 26px;
+    overflow-y: auto;
+    background: linear-gradient(160deg, rgba(20, 16, 12, 0.98) 0%, rgba(14, 11, 8, 0.98) 100%);
+    border: 1px solid var(--panel-border);
+    border-top: 2px solid var(--brown);
+    border-radius: 16px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+}
+
 #detailCloseBtn {
-    display: none;
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    color: var(--text);
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.15s, color 0.15s;
+}
+
+#detailCloseBtn:hover {
+    background: var(--bad);
+    color: #fff;
 }
 
 #detail-icon {
