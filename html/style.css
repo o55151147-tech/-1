@@ -37,9 +37,9 @@
     --bg: #0d0b09;
     --bg-soft: #171310;
     --panel: rgba(255, 255, 255, 0.04);
-    --panel-border: rgba(94, 60, 30, 0.55);
-    --brown: #4a2c14;
-    --brown-dark: #2c1a0c;
+    --panel-border: rgba(255, 255, 255, 0.16);
+    --brown: #4a4a4a;
+    --brown-dark: #2a2a2a;
     --text: #f0efec;
     --text-dim: rgba(240, 239, 236, 0.55);
     --accent: #cfcfcf;
@@ -73,11 +73,11 @@ html, body {
     height: 720px;
     display: flex;
     position: relative;
-    background: linear-gradient(160deg, #17130e 0%, #100d09 100%);
+    background: linear-gradient(160deg, #161616 0%, #0c0c0c 100%);
     border: 1px solid var(--panel-border);
     border-top: 2px solid var(--brown);
-    border-radius: 16px;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 0 60px rgba(74, 44, 20, 0.08);
+    border-radius: 0;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 0 60px rgba(255, 255, 255, 0.05);
     overflow: hidden;
 }
 
@@ -147,7 +147,7 @@ html, body {
     color: var(--text);
     width: 28px;
     height: 28px;
-    border-radius: 8px;
+    border-radius: 0;
     cursor: pointer;
     font-size: 12px;
     transition: background 0.15s, color 0.15s;
@@ -165,7 +165,7 @@ html, body {
     gap: 8px;
     background: var(--panel);
     border: 1px solid var(--panel-border);
-    border-radius: 10px;
+    border-radius: 0;
     padding: 8px 10px;
 }
 
@@ -226,7 +226,7 @@ html, body {
     gap: 10px;
     background: var(--panel);
     border: 1px solid var(--panel-border);
-    border-radius: 14px;
+    border-radius: 0;
     padding: 18px 12px 14px;
     cursor: pointer;
     position: relative;
@@ -241,7 +241,7 @@ html, body {
 .item-card .card-icon {
     width: 56px;
     height: 56px;
-    border-radius: 12px;
+    border-radius: 0;
     background: rgba(255, 255, 255, 0.05);
     display: flex;
     align-items: center;
@@ -305,10 +305,10 @@ html, body {
     align-items: center;
     padding: 30px 26px 26px;
     overflow-y: auto;
-    background: linear-gradient(160deg, rgba(20, 16, 12, 0.98) 0%, rgba(14, 11, 8, 0.98) 100%);
+    background: linear-gradient(160deg, rgba(20, 20, 20, 0.98) 0%, rgba(10, 10, 10, 0.98) 100%);
     border: 1px solid var(--panel-border);
     border-top: 2px solid var(--brown);
-    border-radius: 16px;
+    border-radius: 0;
     box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
 }
 
@@ -321,7 +321,7 @@ html, body {
     color: var(--text);
     width: 28px;
     height: 28px;
-    border-radius: 8px;
+    border-radius: 0;
     cursor: pointer;
     font-size: 12px;
     transition: background 0.15s, color 0.15s;
@@ -335,7 +335,7 @@ html, body {
 #detail-icon {
     width: 130px;
     height: 130px;
-    border-radius: 20px;
+    border-radius: 0;
     background: radial-gradient(circle at 30% 30%, rgba(207, 207, 207, 0.16), rgba(255, 255, 255, 0.03));
     border: 1px solid var(--panel-border);
     display: flex;
@@ -399,14 +399,14 @@ html, body {
     gap: 10px;
     background: var(--panel);
     border: 1px solid var(--panel-border);
-    border-radius: 10px;
+    border-radius: 0;
     padding: 9px 12px;
 }
 
 .req-item .req-icon {
     width: 26px;
     height: 26px;
-    border-radius: 6px;
+    border-radius: 0;
     background: rgba(255, 255, 255, 0.05);
     display: flex;
     align-items: center;
@@ -454,7 +454,7 @@ html, body {
     align-items: center;
     background: var(--panel);
     border: 1px solid var(--panel-border);
-    border-radius: 10px;
+    border-radius: 0;
     overflow: hidden;
 }
 
@@ -490,7 +490,7 @@ html, body {
     flex: 1;
     height: 40px;
     border: none;
-    border-radius: 10px;
+    border-radius: 0;
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     color: #1c1409;
     font-family: inherit;
@@ -526,7 +526,7 @@ html, body {
 #progress-bar {
     width: 100%;
     height: 6px;
-    border-radius: 4px;
+    border-radius: 0;
     background: rgba(255, 255, 255, 0.07);
     overflow: hidden;
 }
@@ -558,7 +558,7 @@ html, body {
 
 .toast {
     padding: 10px 20px;
-    border-radius: 10px;
+    border-radius: 0;
     color: #fff;
     font-family: 'Estedad', 'Segoe UI', Tahoma, sans-serif;
     font-size: 13px;
@@ -587,8 +587,8 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(94, 60, 30, 0.5);
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 0;
 }
 
 ::-webkit-scrollbar-track {
