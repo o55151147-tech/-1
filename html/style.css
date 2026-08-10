@@ -254,6 +254,12 @@ html, body {
     color: var(--accent);
 }
 
+.item-card .card-icon img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
 .item-card .card-name {
     color: var(--text);
     font-size: 13px;
@@ -351,6 +357,12 @@ html, body {
     color: var(--accent);
 }
 
+#detail-icon img {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+}
+
 #detail-info {
     width: 100%;
     max-width: 420px;
@@ -418,6 +430,12 @@ html, body {
     width: 14px;
     height: 14px;
     color: var(--text-dim);
+}
+
+.req-item .req-icon img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
 }
 
 .req-item .req-name {

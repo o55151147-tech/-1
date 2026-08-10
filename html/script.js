@@ -53,6 +53,16 @@ function getIcon(name) {
     return ICONS[name] || ICONS.default;
 }
 
+// يحاول يحمّل img/<name>.png أولاً (صورة المستخدم)، ولو ما وجدها (404) يرجع لأيقونة SVG تلقائياً
+function iconMarkup(name) {
+    return `<img src="img/${name}.png" alt="${name}" onerror="handleIconError(this, '${name}')">`;
+}
+
+function handleIconError(imgEl, name) {
+    const wrapper = imgEl.parentElement;
+    if (wrapper) wrapper.innerHTML = getIcon(name);
+}
+
 function getResourceName() {
     return window.GetParentResourceName ? window.GetParentResourceName() : 'scrap-crafting';
 }
@@ -103,7 +113,7 @@ function renderList() {
         card.className = 'item-card';
         card.innerHTML = `
             <div class="craftable-dot ${craftable ? 'ok' : ''}"></div>
-            <div class="card-icon">${getIcon(item.name)}</div>
+            <div class="card-icon">${iconMarkup(item.name)}</div>
             <div class="card-name">${item.label}</div>
             <div class="card-sub">${categoryLabel} · تصنع ${item.amount}</div>
         `;
@@ -130,7 +140,7 @@ function closeDetail() {
 function renderDetail() {
     if (!selectedItem) return;
 
-    detailIcon.innerHTML = getIcon(selectedItem.name);
+    detailIcon.innerHTML = iconMarkup(selectedItem.name);
     detailName.textContent = selectedItem.label;
     detailDesc.textContent = selectedItem.description || '';
 
@@ -144,7 +154,7 @@ function renderDetail() {
         const row = document.createElement('div');
         row.className = 'req-item';
         row.innerHTML = `
-            <div class="req-icon">${getIcon(ing.item)}</div>
+            <div class="req-icon">${iconMarkup(ing.item)}</div>
             <div class="req-name">${ing.item}</div>
             <div class="req-count ${ok ? 'ok' : 'missing'}">${have}/${need}</div>
         `;
