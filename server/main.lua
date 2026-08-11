@@ -148,7 +148,9 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:craftItem', function(sour
         if itemInfo then
             TriggerClientEvent('inventory:client:ItemBox', src, itemInfo, 'add', produced)
         end
-        AddCraftXp(src, Player, Config.Leveling.xpPerCraft * amount)
+        local craftXpGained = Config.Leveling.xpPerCraft * amount
+        AddCraftXp(src, Player, craftXpGained)
+        TriggerClientEvent('QBCore:Notify', src, ('+%d خبرة تصنيع'):format(craftXpGained), 'primary')
         cb(true, 'تم تصنيع ' .. produced .. 'x ' .. recipe.label)
     else
         -- الإنفنتوري ممتلئ، رجّع المواد

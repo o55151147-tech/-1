@@ -2,7 +2,9 @@ const app = document.getElementById('app');
 const itemsGrid = document.getElementById('items-grid');
 const emptyState = document.getElementById('empty-state');
 const categoryTabs = document.getElementById('category-tabs');
-const levelBadge = document.getElementById('level-badge');
+const levelLabel = document.getElementById('level-label');
+const levelBarFill = document.getElementById('level-bar-fill');
+const levelXpLabel = document.getElementById('level-xp-label');
 const searchInput = document.getElementById('searchInput');
 const closeBtn = document.getElementById('closeBtn');
 const toastContainer = document.getElementById('toast-container');
@@ -125,8 +127,18 @@ function renderCategoryTabs() {
     });
 }
 
+function renderLevelWidget() {
+    const atMax = levelInfo.level >= levelInfo.maxLevel;
+    const xpIntoLevel = levelInfo.xp % levelInfo.xpPerLevel;
+    const pct = atMax ? 100 : Math.min(100, (xpIntoLevel / levelInfo.xpPerLevel) * 100);
+
+    levelLabel.textContent = `المستوى ${levelInfo.level}`;
+    levelBarFill.style.width = `${pct}%`;
+    levelXpLabel.textContent = atMax ? 'أقصى مستوى' : `${xpIntoLevel}/${levelInfo.xpPerLevel}`;
+}
+
 function renderList() {
-    levelBadge.textContent = `المستوى ${levelInfo.level} من ${levelInfo.maxLevel}`;
+    renderLevelWidget();
 
     const filtered = getFilteredItems();
     itemsGrid.innerHTML = '';

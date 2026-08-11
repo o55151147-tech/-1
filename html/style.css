@@ -239,11 +239,41 @@ html, body {
     color: #111;
 }
 
-#level-badge {
-    color: var(--text-dim);
+#level-widget {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+#level-label {
+    color: var(--text);
     font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+#level-bar {
+    width: 100px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--panel-border);
+    overflow: hidden;
+}
+
+#level-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    transition: width 0.3s ease;
+}
+
+#level-xp-label {
+    color: var(--text-dim);
+    font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }
 
 #items-grid {
