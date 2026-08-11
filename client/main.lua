@@ -151,6 +151,8 @@ end, false)
 
 -- ============ طاولة التصنيع ============
 
+local spawnedTables = {}
+
 CreateThread(function()
     if not Config.CraftingTables or #Config.CraftingTables == 0 then return end
 
@@ -170,6 +172,7 @@ CreateThread(function()
             SetEntityHeading(obj, loc.heading or 0.0)
             FreezeEntityPosition(obj, true)
             SetEntityCollision(obj, true, true)
+            spawnedTables[#spawnedTables + 1] = obj
         end
 
         SetModelAsNoLongerNeeded(model)
@@ -193,6 +196,18 @@ CreateThread(function()
         },
         distance = Config.TableInteractDistance,
     })
+end)
+
+-- يحذف الطاولات المسبونة صراحة عند إيقاف/إعادة تشغيل المورد
+-- (بدل الاعتماد على تنظيف اللعبة التلقائي، اللي ما يصير أحياناً)
+AddEventHandler('onResourceStop', function(resourceName)
+    if GetCurrentResourceName() ~= resourceName then return end
+
+    for _, obj in ipairs(spawnedTables) do
+        if DoesEntityExist(obj) then
+            DeleteEntity(obj)
+        end
+    end
 end)
 
 -- أمر مساعد يطبع إحداثيات موقعك الحالي بكونسول F8 عشان تحدد مكان طاولة التصنيع بالضبط
