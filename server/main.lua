@@ -1,5 +1,35 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
+-- ============ نظام المستوى (يقفل التصنيع لين أعلى مستوى) ============
+
+local function GetLevelInfo(Player)
+    local xp = (Player.PlayerData.metadata and Player.PlayerData.metadata.craftxp) or 0
+    local level = math.min(Config.Leveling.maxLevel, math.floor(xp / Config.Leveling.xpPerLevel))
+
+    return {
+        level = level,
+        xp = xp,
+        maxLevel = Config.Leveling.maxLevel,
+        xpPerLevel = Config.Leveling.xpPerLevel,
+        unlocked = level >= Config.Leveling.maxLevel,
+    }
+end
+
+local function AddCraftXp(src, Player, amount)
+    local before = GetLevelInfo(Player)
+    local newXp = before.xp + amount
+    Player.Functions.SetMetaData('craftxp', newXp)
+
+    local after = GetLevelInfo(Player)
+    if after.level > before.level then
+        if after.unlocked then
+            TriggerClientEvent('QBCore:Notify', src, 'وصلت لأعلى مستوى! التصنيع مفتوح كامل الحين', 'success')
+        else
+            TriggerClientEvent('QBCore:Notify', src, ('ترقيت للمستوى %d/%d'):format(after.level, after.maxLevel), 'success')
+        end
+    end
+end
+
 -- ============ إعطاء مكافأة السكراب (مشترك بين المركبات والحطام الثابت) ============
 
 local function GiveScrapRewards(src)
@@ -21,6 +51,7 @@ local function GiveScrapRewards(src)
     end
 
     if #given > 0 then
+        AddCraftXp(src, Player, Config.Leveling.xpPerSearch)
         TriggerClientEvent('QBCore:Notify', src, 'حصلت على مواد سكراب', 'success')
     else
         TriggerClientEvent('QBCore:Notify', src, 'ما لقيت شي مفيد هذي المرة', 'error')
@@ -71,6 +102,12 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:craftItem', function(sour
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then
         cb(false, 'خطأ في بيانات اللاعب')
+        return
+    end
+
+    local levelInfo = GetLevelInfo(Player)
+    if not levelInfo.unlocked then
+        cb(false, ('لازم توصل للمستوى %d عشان تفتح التصنيع (مستواك الحالي: %d)'):format(levelInfo.maxLevel, levelInfo.level))
         return
     end
 
@@ -131,7 +168,7 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:getCounts', function(sour
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then
-        cb({})
+        cb({ counts = {}, level = { level = 0, xp = 0, maxLevel = Config.Leveling.maxLevel, xpPerLevel = Config.Leveling.xpPerLevel, unlocked = false } })
         return
     end
 
@@ -145,5 +182,5 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:getCounts', function(sour
         end
     end
 
-    cb(counts)
+    cb({ counts = counts, level = GetLevelInfo(Player) })
 end)

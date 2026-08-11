@@ -214,13 +214,14 @@ end, false)
 function OpenCraftingMenu()
     if craftMenuOpen then return end
 
-    QBCore.Functions.TriggerCallback('scrap-crafting:server:getCounts', function(counts)
+    QBCore.Functions.TriggerCallback('scrap-crafting:server:getCounts', function(result)
         craftMenuOpen = true
         SetNuiFocus(true, true)
         SendNUIMessage({
             action = 'open',
             items = Config.CraftingItems,
-            counts = counts,
+            counts = result.counts,
+            level = result.level,
             maxAmount = Config.MaxCraftAmount,
         })
     end)
@@ -273,13 +274,14 @@ RegisterNUICallback('craft', function(data, cb)
         ClearPedTasks(ped)
         QBCore.Functions.TriggerCallback('scrap-crafting:server:craftItem', function(success, message)
             isBusy = false
-            QBCore.Functions.TriggerCallback('scrap-crafting:server:getCounts', function(counts)
+            QBCore.Functions.TriggerCallback('scrap-crafting:server:getCounts', function(result)
                 SendNUIMessage({
                     action = 'craftResult',
                     success = success,
                     message = message,
                     item = recipeName,
-                    counts = counts,
+                    counts = result.counts,
+                    level = result.level,
                 })
             end)
         end, recipeName, amount)

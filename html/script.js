@@ -1,6 +1,9 @@
 const app = document.getElementById('app');
 const itemsGrid = document.getElementById('items-grid');
 const emptyState = document.getElementById('empty-state');
+const lockedState = document.getElementById('locked-state');
+const lockedProgressFill = document.getElementById('locked-progress-fill');
+const lockedProgressLabel = document.getElementById('locked-progress-label');
 const searchInput = document.getElementById('searchInput');
 const closeBtn = document.getElementById('closeBtn');
 const toastContainer = document.getElementById('toast-container');
@@ -48,6 +51,7 @@ let maxAmount = 10;
 let selectedItem = null;
 let searchTerm = '';
 let isCrafting = false;
+let levelInfo = { level: 0, xp: 0, maxLevel: 0, xpPerLevel: 100, unlocked: true };
 
 function getIcon(name) {
     return ICONS[name] || ICONS.default;
@@ -92,7 +96,25 @@ function getFilteredItems() {
     return allItems.filter((item) => item.label.toLowerCase().includes(searchTerm.toLowerCase()));
 }
 
+function renderLockedState() {
+    const xpIntoLevel = levelInfo.xp % levelInfo.xpPerLevel;
+    const pct = levelInfo.maxLevel > 0 ? Math.min(100, (xpIntoLevel / levelInfo.xpPerLevel) * 100) : 0;
+
+    lockedProgressFill.style.width = `${pct}%`;
+    lockedProgressLabel.textContent = `المستوى ${levelInfo.level} من ${levelInfo.maxLevel}`;
+}
+
 function renderList() {
+    itemsGrid.classList.add('hidden');
+    emptyState.classList.add('hidden');
+    lockedState.classList.add('hidden');
+
+    if (!levelInfo.unlocked) {
+        lockedState.classList.remove('hidden');
+        renderLockedState();
+        return;
+    }
+
     const filtered = getFilteredItems();
     itemsGrid.innerHTML = '';
 
@@ -220,6 +242,7 @@ function openMenu(data) {
     allItems = data.items || [];
     counts = data.counts || {};
     maxAmount = data.maxAmount || 10;
+    levelInfo = data.level || levelInfo;
     searchTerm = '';
     isCrafting = false;
     searchInput.value = '';
@@ -264,6 +287,7 @@ window.addEventListener('message', (event) => {
         case 'craftResult':
             isCrafting = false;
             counts = data.counts || counts;
+            levelInfo = data.level || levelInfo;
             progressWrap.classList.add('hidden');
             progressFill.style.transition = 'none';
             progressFill.style.width = '0%';
