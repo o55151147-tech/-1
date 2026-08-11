@@ -170,8 +170,9 @@ CreateThread(function()
         if HasModelLoaded(model) then
             local obj = CreateObject(model, loc.coords.x, loc.coords.y, loc.coords.z, false, false, false)
             SetEntityHeading(obj, loc.heading or 0.0)
-            FreezeEntityPosition(obj, true)
             SetEntityCollision(obj, true, true)
+            PlaceObjectOnGroundProperly(obj) -- يحط الغرض بالضبط على سطح الأرض بدل ما يعتمد على z اليدوي
+            FreezeEntityPosition(obj, true)
             spawnedTables[#spawnedTables + 1] = obj
         end
 
