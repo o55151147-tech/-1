@@ -148,6 +148,7 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:craftItem', function(sour
         if itemInfo then
             TriggerClientEvent('inventory:client:ItemBox', src, itemInfo, 'add', produced)
         end
+        AddCraftXp(src, Player, Config.Leveling.xpPerCraft * amount)
         cb(true, 'تم تصنيع ' .. produced .. 'x ' .. recipe.label)
     else
         -- الإنفنتوري ممتلئ، رجّع المواد
@@ -157,6 +158,29 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:craftItem', function(sour
         cb(false, 'الإنفنتوري ممتلئ')
     end
 end)
+
+-- ============ أمر اختبار: يزيد مستواك يدوياً (Admin فقط) ============
+-- استخدم /addlevel لإضافة مستوى وحد، أو /addlevel 3 لإضافة 3 مستويات دفعة وحدة
+-- شيل هذا الأمر أو قيّده أكثر قبل ما تفتح السيرفر للاعبين فعلياً
+
+RegisterCommand('addlevel', function(source, args)
+    local src = source
+    if src == 0 then return end
+
+    if not QBCore.Functions.HasPermission(src, 'admin') then
+        TriggerClientEvent('QBCore:Notify', src, 'ما عندك صلاحية لهذا الأمر', 'error')
+        return
+    end
+
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+
+    local levels = tonumber(args[1]) or 1
+    AddCraftXp(src, Player, levels * Config.Leveling.xpPerLevel)
+
+    local info = GetLevelInfo(Player)
+    TriggerClientEvent('QBCore:Notify', src, ('[اختبار] مستواك الحين: %d/%d'):format(info.level, info.maxLevel), 'success')
+end, false)
 
 -- ============ إرجاع عدد المواد الحالية للاعب (لعرضها بالواجهة) ============
 
