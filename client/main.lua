@@ -24,6 +24,20 @@ CreateThread(function()
     })
 end)
 
+-- يراقب زر ESC صراحة أثناء أي إجراء (تفتيش/تصنيع) ويلغيه فوراً بدل الاعتماد
+-- على آلية الإلغاء المدمجة بـ qb-core اللي قد ما تستجيب لـ ESC بكل النسخ
+local function WatchEscCancel(isFinished, onCancelled)
+    CreateThread(function()
+        while isBusy and not isFinished() do
+            if IsControlJustPressed(0, 200) then -- ESC
+                onCancelled()
+                return
+            end
+            Wait(0)
+        end
+    end)
+end
+
 function SearchVehicleForScrap(vehicle)
     if isBusy or not DoesEntityExist(vehicle) then return end
 
@@ -36,8 +50,16 @@ function SearchVehicleForScrap(vehicle)
 
     local ped = PlayerPedId()
     isBusy = true
+    local finished = false
     TaskTurnPedToFaceEntity(ped, vehicle, 1000)
     Wait(500)
+
+    WatchEscCancel(function() return finished end, function()
+        finished = true
+        ClearPedTasks(ped)
+        isBusy = false
+        QBCore.Functions.Notify('تم إلغاء التفتيش', 'error')
+    end)
 
     QBCore.Functions.Progressbar('search_vehicle_scrap', 'جاري تفتيش المركبة...', Config.SearchTime, false, true, {
         disableMovement = true,
@@ -49,11 +71,15 @@ function SearchVehicleForScrap(vehicle)
         anim = 'fixing_a_ped',
         flags = 16,
     }, {}, {}, function() -- Done
+        if finished then return end
+        finished = true
         ClearPedTasks(ped)
         isBusy = false
         searchedVehicles[netId] = GetGameTimer()
         TriggerServerEvent('scrap-crafting:server:giveScrapReward', netId)
     end, function() -- Cancel
+        if finished then return end
+        finished = true
         ClearPedTasks(ped)
         isBusy = false
         QBCore.Functions.Notify('تم إلغاء التفتيش', 'error')
@@ -95,8 +121,16 @@ function SearchWreckForScrap(entity)
 
     local ped = PlayerPedId()
     isBusy = true
+    local finished = false
     TaskTurnPedToFaceEntity(ped, entity, 1000)
     Wait(500)
+
+    WatchEscCancel(function() return finished end, function()
+        finished = true
+        ClearPedTasks(ped)
+        isBusy = false
+        QBCore.Functions.Notify('تم إلغاء التفتيش', 'error')
+    end)
 
     QBCore.Functions.Progressbar('search_wreck_scrap', 'جاري تفتيش الحطام...', Config.SearchTime, false, true, {
         disableMovement = true,
@@ -108,11 +142,15 @@ function SearchWreckForScrap(entity)
         anim = 'fixing_a_ped',
         flags = 16,
     }, {}, {}, function() -- Done
+        if finished then return end
+        finished = true
         ClearPedTasks(ped)
         isBusy = false
         searchedProps[entity] = GetGameTimer()
         TriggerServerEvent('scrap-crafting:server:givePropScrapReward')
     end, function() -- Cancel
+        if finished then return end
+        finished = true
         ClearPedTasks(ped)
         isBusy = false
         QBCore.Functions.Notify('تم إلغاء التفتيش', 'error')
@@ -274,8 +312,16 @@ RegisterNUICallback('craft', function(data, cb)
     end
 
     isBusy = true
+    local finished = false
     local ped = PlayerPedId()
     local craftTime = math.min(recipe.time * amount, 60000)
+
+    WatchEscCancel(function() return finished end, function()
+        finished = true
+        ClearPedTasks(ped)
+        isBusy = false
+        SendNUIMessage({ action = 'craftResult', success = false, message = 'تم الإلغاء', item = recipeName })
+    end)
 
     QBCore.Functions.Progressbar('craft_item_' .. recipeName, 'جاري تصنيع: ' .. recipe.label .. ' x' .. amount, craftTime, false, true, {
         disableMovement = true,
@@ -287,6 +333,8 @@ RegisterNUICallback('craft', function(data, cb)
         anim = 'fixing_a_ped',
         flags = 16,
     }, {}, {}, function() -- Done
+        if finished then return end
+        finished = true
         ClearPedTasks(ped)
         QBCore.Functions.TriggerCallback('scrap-crafting:server:craftItem', function(success, message)
             isBusy = false
@@ -302,6 +350,8 @@ RegisterNUICallback('craft', function(data, cb)
             end)
         end, recipeName, amount)
     end, function() -- Cancel
+        if finished then return end
+        finished = true
         ClearPedTasks(ped)
         isBusy = false
         SendNUIMessage({ action = 'craftResult', success = false, message = 'تم الإلغاء', item = recipeName })

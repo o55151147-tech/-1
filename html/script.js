@@ -55,7 +55,7 @@ let selectedItem = null;
 let searchTerm = '';
 let currentCategory = 'all';
 let isCrafting = false;
-let levelInfo = { level: 0, xp: 0, maxLevel: 0, xpPerLevel: 100 };
+let levelInfo = { level: 0, xp: 0, xpIntoLevel: 0, xpForNextLevel: 100, maxLevel: 0, xpPerLevel: 100 };
 
 function getIcon(name) {
     return ICONS[name] || ICONS.default;
@@ -129,12 +129,13 @@ function renderCategoryTabs() {
 
 function renderLevelWidget() {
     const atMax = levelInfo.level >= levelInfo.maxLevel;
-    const xpIntoLevel = levelInfo.xp % levelInfo.xpPerLevel;
-    const pct = atMax ? 100 : Math.min(100, (xpIntoLevel / levelInfo.xpPerLevel) * 100);
+    const xpIntoLevel = levelInfo.xpIntoLevel ?? 0;
+    const xpForNextLevel = levelInfo.xpForNextLevel || levelInfo.xpPerLevel;
+    const pct = atMax ? 100 : Math.min(100, (xpIntoLevel / xpForNextLevel) * 100);
 
     levelLabel.textContent = `المستوى ${levelInfo.level}`;
     levelBarFill.style.width = `${pct}%`;
-    levelXpLabel.textContent = atMax ? 'أقصى مستوى' : `${xpIntoLevel}/${levelInfo.xpPerLevel}`;
+    levelXpLabel.textContent = atMax ? 'أقصى مستوى' : `${xpIntoLevel}/${xpForNextLevel}`;
 }
 
 function renderList() {

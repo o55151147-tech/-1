@@ -2,13 +2,30 @@ local QBCore = exports['qb-core']:GetCoreObject()
 
 -- ============ نظام المستوى (يقفل التصنيع لين أعلى مستوى) ============
 
+-- كل مستوى يحتاج خبرة أكثر من اللي قبله (تراكمي): المستوى N يحتاج N * xpPerLevel
+local function XpNeededForLevel(level)
+    return Config.Leveling.xpPerLevel * level
+end
+
 local function GetLevelInfo(Player)
     local xp = (Player.PlayerData.metadata and Player.PlayerData.metadata.craftxp) or 0
-    local level = math.min(Config.Leveling.maxLevel, math.floor(xp / Config.Leveling.xpPerLevel))
+    local level = 0
+    local remaining = xp
+
+    while level < Config.Leveling.maxLevel do
+        local needed = XpNeededForLevel(level + 1)
+        if remaining < needed then break end
+        remaining = remaining - needed
+        level = level + 1
+    end
+
+    local xpForNextLevel = level < Config.Leveling.maxLevel and XpNeededForLevel(level + 1) or 0
 
     return {
         level = level,
         xp = xp,
+        xpIntoLevel = remaining,
+        xpForNextLevel = xpForNextLevel,
         maxLevel = Config.Leveling.maxLevel,
         xpPerLevel = Config.Leveling.xpPerLevel,
     }
@@ -178,10 +195,18 @@ RegisterCommand('addlevel', function(source, args)
     if not Player then return end
 
     local levels = tonumber(args[1]) or 1
-    AddCraftXp(src, Player, levels * Config.Leveling.xpPerLevel)
+    local before = GetLevelInfo(Player)
+    local targetLevel = math.min(before.level + levels, Config.Leveling.maxLevel)
 
-    local info = GetLevelInfo(Player)
-    TriggerClientEvent('QBCore:Notify', src, ('[اختبار] مستواك الحين: %d/%d'):format(info.level, info.maxLevel), 'success')
+    local totalXpNeeded = 0
+    for i = 1, targetLevel do
+        totalXpNeeded = totalXpNeeded + XpNeededForLevel(i)
+    end
+
+    AddCraftXp(src, Player, math.max(totalXpNeeded - before.xp, 0))
+
+    local after = GetLevelInfo(Player)
+    TriggerClientEvent('QBCore:Notify', src, ('[اختبار] مستواك الحين: %d/%d'):format(after.level, after.maxLevel), 'success')
 end, false)
 
 -- ============ إرجاع عدد المواد الحالية للاعب (لعرضها بالواجهة) ============
@@ -190,7 +215,7 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:getCounts', function(sour
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then
-        cb({ counts = {}, level = { level = 0, xp = 0, maxLevel = Config.Leveling.maxLevel, xpPerLevel = Config.Leveling.xpPerLevel } })
+        cb({ counts = {}, level = { level = 0, xp = 0, xpIntoLevel = 0, xpForNextLevel = Config.Leveling.xpPerLevel, maxLevel = Config.Leveling.maxLevel, xpPerLevel = Config.Leveling.xpPerLevel } })
         return
     end
 
