@@ -11,7 +11,6 @@ local function GetLevelInfo(Player)
         xp = xp,
         maxLevel = Config.Leveling.maxLevel,
         xpPerLevel = Config.Leveling.xpPerLevel,
-        unlocked = level >= Config.Leveling.maxLevel,
     }
 end
 
@@ -22,11 +21,7 @@ local function AddCraftXp(src, Player, amount)
 
     local after = GetLevelInfo(Player)
     if after.level > before.level then
-        if after.unlocked then
-            TriggerClientEvent('QBCore:Notify', src, 'وصلت لأعلى مستوى! التصنيع مفتوح كامل الحين', 'success')
-        else
-            TriggerClientEvent('QBCore:Notify', src, ('ترقيت للمستوى %d/%d'):format(after.level, after.maxLevel), 'success')
-        end
+        TriggerClientEvent('QBCore:Notify', src, ('ترقيت للمستوى %d/%d'):format(after.level, after.maxLevel), 'success')
     end
 end
 
@@ -105,12 +100,6 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:craftItem', function(sour
         return
     end
 
-    local levelInfo = GetLevelInfo(Player)
-    if not levelInfo.unlocked then
-        cb(false, ('لازم توصل للمستوى %d عشان تفتح التصنيع (مستواك الحالي: %d)'):format(levelInfo.maxLevel, levelInfo.level))
-        return
-    end
-
     amount = math.floor(tonumber(amount) or 1)
     if amount < 1 then amount = 1 end
     if amount > Config.MaxCraftAmount then amount = Config.MaxCraftAmount end
@@ -125,6 +114,13 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:craftItem', function(sour
 
     if not recipe then
         cb(false, 'وصفة غير موجودة')
+        return
+    end
+
+    local levelInfo = GetLevelInfo(Player)
+    local requiredLevel = recipe.requiredLevel or 0
+    if levelInfo.level < requiredLevel then
+        cb(false, ('لازم مستوى %d عشان تصنع هذا العنصر (مستواك الحالي: %d)'):format(requiredLevel, levelInfo.level))
         return
     end
 
@@ -168,7 +164,7 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:getCounts', function(sour
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then
-        cb({ counts = {}, level = { level = 0, xp = 0, maxLevel = Config.Leveling.maxLevel, xpPerLevel = Config.Leveling.xpPerLevel, unlocked = false } })
+        cb({ counts = {}, level = { level = 0, xp = 0, maxLevel = Config.Leveling.maxLevel, xpPerLevel = Config.Leveling.xpPerLevel } })
         return
     end
 

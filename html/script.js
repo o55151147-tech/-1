@@ -1,9 +1,8 @@
 const app = document.getElementById('app');
 const itemsGrid = document.getElementById('items-grid');
 const emptyState = document.getElementById('empty-state');
-const lockedState = document.getElementById('locked-state');
-const lockedProgressFill = document.getElementById('locked-progress-fill');
-const lockedProgressLabel = document.getElementById('locked-progress-label');
+const categoryTabs = document.getElementById('category-tabs');
+const levelBadge = document.getElementById('level-badge');
 const searchInput = document.getElementById('searchInput');
 const closeBtn = document.getElementById('closeBtn');
 const toastContainer = document.getElementById('toast-container');
@@ -45,13 +44,16 @@ const CATEGORY_LABELS = {
     utility: 'منفعة',
 };
 
+const LOCK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
+
 let allItems = [];
 let counts = {};
 let maxAmount = 10;
 let selectedItem = null;
 let searchTerm = '';
+let currentCategory = 'all';
 let isCrafting = false;
-let levelInfo = { level: 0, xp: 0, maxLevel: 0, xpPerLevel: 100, unlocked: true };
+let levelInfo = { level: 0, xp: 0, maxLevel: 0, xpPerLevel: 100 };
 
 function getIcon(name) {
     return ICONS[name] || ICONS.default;
@@ -91,29 +93,40 @@ function hasEnough(item, qty) {
     return item.ingredients.every((ing) => (counts[ing.item] ?? 0) >= ing.amount * qty);
 }
 
-function getFilteredItems() {
-    if (!searchTerm) return allItems;
-    return allItems.filter((item) => item.label.toLowerCase().includes(searchTerm.toLowerCase()));
+function isItemLocked(item) {
+    return (item.requiredLevel || 0) > levelInfo.level;
 }
 
-function renderLockedState() {
-    const xpIntoLevel = levelInfo.xp % levelInfo.xpPerLevel;
-    const pct = levelInfo.maxLevel > 0 ? Math.min(100, (xpIntoLevel / levelInfo.xpPerLevel) * 100) : 0;
+function getFilteredItems() {
+    return allItems.filter((item) => {
+        const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
+        const matchesSearch = !searchTerm || item.label.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
+}
 
-    lockedProgressFill.style.width = `${pct}%`;
-    lockedProgressLabel.textContent = `المستوى ${levelInfo.level} من ${levelInfo.maxLevel}`;
+function renderCategoryTabs() {
+    const present = new Set(allItems.map((i) => i.category || 'utility'));
+    const cats = ['all', ...Array.from(present)];
+
+    categoryTabs.innerHTML = '';
+    cats.forEach((cat) => {
+        const label = cat === 'all' ? 'الكل' : (CATEGORY_LABELS[cat] || cat);
+
+        const btn = document.createElement('button');
+        btn.className = `category-tab ${cat === currentCategory ? 'active' : ''}`;
+        btn.textContent = label;
+        btn.addEventListener('click', () => {
+            currentCategory = cat;
+            renderCategoryTabs();
+            renderList();
+        });
+        categoryTabs.appendChild(btn);
+    });
 }
 
 function renderList() {
-    itemsGrid.classList.add('hidden');
-    emptyState.classList.add('hidden');
-    lockedState.classList.add('hidden');
-
-    if (!levelInfo.unlocked) {
-        lockedState.classList.remove('hidden');
-        renderLockedState();
-        return;
-    }
+    levelBadge.textContent = `المستوى ${levelInfo.level} من ${levelInfo.maxLevel}`;
 
     const filtered = getFilteredItems();
     itemsGrid.innerHTML = '';
@@ -128,19 +141,27 @@ function renderList() {
     emptyState.classList.add('hidden');
 
     filtered.forEach((item) => {
-        const craftable = hasEnough(item, 1);
+        const locked = isItemLocked(item);
+        const craftable = !locked && hasEnough(item, 1);
         const categoryLabel = CATEGORY_LABELS[item.category] || '';
 
         const card = document.createElement('div');
-        card.className = 'item-card';
+        card.className = `item-card ${locked ? 'locked' : ''}`;
         card.innerHTML = `
-            <div class="craftable-dot ${craftable ? 'ok' : ''}"></div>
+            ${locked ? '' : `<div class="craftable-dot ${craftable ? 'ok' : ''}"></div>`}
             <div class="card-icon">${iconMarkup(item.name)}</div>
             <div class="card-name">${item.label}</div>
             <div class="card-sub">${categoryLabel} · تصنع ${item.amount}</div>
+            ${locked ? `<div class="lock-overlay">${LOCK_ICON}<span>يتطلب مستوى ${item.requiredLevel}</span></div>` : ''}
         `;
 
-        card.addEventListener('click', () => openDetail(item.name));
+        card.addEventListener('click', () => {
+            if (locked) {
+                showToast(`يتطلب مستوى ${item.requiredLevel} (مستواك الحالي: ${levelInfo.level})`, 'error');
+                return;
+            }
+            openDetail(item.name);
+        });
         itemsGrid.appendChild(card);
     });
 }
@@ -244,11 +265,13 @@ function openMenu(data) {
     maxAmount = data.maxAmount || 10;
     levelInfo = data.level || levelInfo;
     searchTerm = '';
+    currentCategory = 'all';
     isCrafting = false;
     searchInput.value = '';
 
     app.classList.remove('hidden');
     closeDetail();
+    renderCategoryTabs();
     renderList();
 }
 

@@ -29,13 +29,13 @@ Config.VehicleCooldown = 300
 -- أقصى عدد يقدر اللاعب يصنعه دفعة وحدة من نفس العنصر
 Config.MaxCraftAmount = 10
 
--- نظام مستوى بسيط: التصنيع كامل يبقى مقفول لين اللاعب يوصل لأعلى مستوى.
--- الخبرة تُكتسب من تفتيش المركبات/الحطام عن سكراب فقط (مو من التصنيع نفسه، لأنه مقفول أصلاً)
--- وتُخزّن بميتاداتا اللاعب (metadata.craftxp) فتبقى محفوظة حتى بعد الخروج
+-- نظام مستوى بسيط: كل وصفة تصنيع لها مستوى مطلوب خاص فيها (requiredLevel بالأسفل).
+-- الخبرة تُكتسب من تفتيش المركبات/الحطام عن سكراب، وتُخزّن بميتاداتا اللاعب (metadata.craftxp)
+-- فتبقى محفوظة حتى بعد الخروج
 Config.Leveling = {
-    maxLevel = 10,        -- المستوى المطلوب عشان يفتح التصنيع كامل
-    xpPerLevel = 100,      -- كم نقطة خبرة تحتاجها لكل مستوى
-    xpPerSearch = 15,      -- الخبرة اللي تاخذها من كل عملية تفتيش ناجحة (مركبة أو حطام)
+    maxLevel = 10,          -- أعلى مستوى ممكن يوصله اللاعب (يستخدم للعرض بالواجهة فقط)
+    xpPerLevel = 100,       -- كم نقطة خبرة تحتاجها لكل مستوى
+    xpPerSearch = 15,       -- الخبرة اللي تاخذها من كل عملية تفتيش ناجحة (مركبة أو حطام)
 }
 
 -- موديلات حطام السيارات الثابتة (props) اللي تقدر تفتشها عن سكراب، مثل اللي بمقابر الخردة
@@ -80,9 +80,35 @@ Config.CraftingItems = {
         category = 'tools',
         amount = 1,
         time = 6000,
+        requiredLevel = 0,
         ingredients = {
             { item = 'metalscrap', amount = 3 },
             { item = 'plastic',    amount = 1 },
+        }
+    },
+    {
+        name = 'bandage',
+        label = 'ضمادة',
+        description = 'تستخدم لعلاج الجروح البسيطة',
+        category = 'medical',
+        amount = 2,
+        time = 4000,
+        requiredLevel = 0,
+        ingredients = {
+            { item = 'cloth', amount = 3 },
+        }
+    },
+    {
+        name = 'binoculars',
+        label = 'منظار',
+        description = 'للمراقبة عن بعد',
+        category = 'utility',
+        amount = 1,
+        time = 6000,
+        requiredLevel = 1,
+        ingredients = {
+            { item = 'plastic',    amount = 2 },
+            { item = 'metalscrap', amount = 1 },
         }
     },
     {
@@ -92,6 +118,7 @@ Config.CraftingItems = {
         category = 'defense',
         amount = 1,
         time = 8000,
+        requiredLevel = 2,
         ingredients = {
             { item = 'metalscrap', amount = 2 },
             { item = 'cloth',      amount = 2 },
@@ -104,33 +131,11 @@ Config.CraftingItems = {
         category = 'tools',
         amount = 1,
         time = 7000,
+        requiredLevel = 3,
         ingredients = {
             { item = 'metalscrap', amount = 4 },
             { item = 'copperwire', amount = 2 },
             { item = 'rubber',     amount = 1 },
-        }
-    },
-    {
-        name = 'bandage',
-        label = 'ضمادة',
-        description = 'تستخدم لعلاج الجروح البسيطة',
-        category = 'medical',
-        amount = 2,
-        time = 4000,
-        ingredients = {
-            { item = 'cloth', amount = 3 },
-        }
-    },
-    {
-        name = 'binoculars',
-        label = 'منظار',
-        description = 'للمراقبة عن بعد',
-        category = 'utility',
-        amount = 1,
-        time = 6000,
-        ingredients = {
-            { item = 'plastic',    amount = 2 },
-            { item = 'metalscrap', amount = 1 },
         }
     },
 }
