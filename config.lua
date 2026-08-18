@@ -20,6 +20,10 @@ Config.TableInteractDistance = 2.0
 -- أقصى مسافة للتفاعل مع المركبة عبر qb-target
 Config.MaxSearchDistance = 2.5
 
+-- المركبة لازم تكون تالفة عشان تقدر تفتشها عن سكراب (مو أي مركبة شغالة عادي)
+-- لو صحة المحرك أو الهيكل أقل من هذا الرقم (من أصل 1000) أو المركبة مو قابلة للقيادة، تصير قابلة للتفتيش
+Config.ScrapVehicleMaxHealth = 400.0
+
 -- وقت شريط التقدم عند تفتيش مركبة (مللي ثانية)
 Config.SearchTime = 8000
 
@@ -78,7 +82,7 @@ Config.ScrapItems = {
 Config.CraftingItems = {
     {
         name = 'lockpick',
-        label = 'Lockpick',
+        label = 'فاتح اقفال متقدم',
         description = 'أداة لفتح الأقفال يدوياً',
         category = 'tools',
         amount = 1,
@@ -96,19 +100,19 @@ Config.CraftingItems = {
         category = 'medical',
         amount = 2,
         time = 4000,
-        requiredLevel = 0,
+        requiredLevel = 1,
         ingredients = {
             { item = 'cloth', amount = 3 },
         }
     },
     {
-        name = 'binoculars',
-        label = 'منظار',
-        description = 'للمراقبة عن بعد',
+        name = 'handcuffs_b',
+        label = 'كلبشه',
+        description = '  ',
         category = 'utility',
         amount = 1,
         time = 6000,
-        requiredLevel = 1,
+        requiredLevel = 3,
         ingredients = {
             { item = 'plastic',    amount = 2 },
             { item = 'metalscrap', amount = 1 },
@@ -116,29 +120,29 @@ Config.CraftingItems = {
     },
     {
         name = 'weapon_bat',
-        label = 'عصا بيسبول',
+        label = 'عجره ',
         description = 'أداة دفاع شخصي بسيطة',
         category = 'defense',
         amount = 1,
         time = 8000,
-        requiredLevel = 2,
+        requiredLevel = 4,
         ingredients = {
             { item = 'metalscrap', amount = 2 },
             { item = 'cloth',      amount = 2 },
         }
     },
     {
-        name = 'repairkit',
-        label = 'طقم تصليح',
+        name = 'weapon_snspistol',
+        label = ' جلوك 21',
         description = 'يستخدم لتصليح المركبات ميدانياً',
         category = 'tools',
         amount = 1,
-        time = 7000,
-        requiredLevel = 3,
+        time = 20000,
+        requiredLevel = 7,
         ingredients = {
-            { item = 'metalscrap', amount = 4 },
-            { item = 'copperwire', amount = 2 },
-            { item = 'rubber',     amount = 1 },
+            { item = 'metalscrap', amount = 99 },
+            { item = 'copperwire', amount = 99 },
+            { item = 'rubber',     amount = 99 },
         }
     },
 }

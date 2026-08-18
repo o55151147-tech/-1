@@ -6,6 +6,15 @@ local isBusy = false
 
 -- ============ تفتيش المركبات عن سكراب ============
 
+-- المركبة تعتبر تالفة (وبالتالي قابلة للتفتيش) لو صحة المحرك أو الهيكل تحت الحد المسموح، أو ما تقدر تنقاد أصلاً
+local function IsVehicleWrecked(vehicle)
+    if not IsVehicleDriveable(vehicle, false) then return true end
+
+    local engineHealth = GetVehicleEngineHealth(vehicle)
+    local bodyHealth = GetVehicleBodyHealth(vehicle)
+    return engineHealth < Config.ScrapVehicleMaxHealth or bodyHealth < Config.ScrapVehicleMaxHealth
+end
+
 CreateThread(function()
     exports['qb-target']:AddGlobalVehicle({
         options = {
@@ -16,7 +25,10 @@ CreateThread(function()
                     SearchVehicleForScrap(entity)
                 end,
                 canInteract = function(entity)
-                    return DoesEntityExist(entity) and not IsPedInVehicle(PlayerPedId(), entity, false) and not isBusy
+                    return DoesEntityExist(entity)
+                        and not IsPedInVehicle(PlayerPedId(), entity, false)
+                        and not isBusy
+                        and IsVehicleWrecked(entity)
                 end,
             },
         },

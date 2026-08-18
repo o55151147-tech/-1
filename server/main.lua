@@ -84,6 +84,14 @@ RegisterNetEvent('scrap-crafting:server:giveScrapReward', function(netId)
         return
     end
 
+    -- تحقق إن المركبة فعلاً تالفة، مو مركبة سليمة يحاول يفتشها بتلاعب بالعميل
+    local engineHealth = GetVehicleEngineHealth(vehicle)
+    local bodyHealth = GetVehicleBodyHealth(vehicle)
+    local wrecked = (not IsVehicleDriveable(vehicle, false)) or engineHealth < Config.ScrapVehicleMaxHealth or bodyHealth < Config.ScrapVehicleMaxHealth
+    if not wrecked then
+        return
+    end
+
     GiveScrapRewards(src)
 end)
 
