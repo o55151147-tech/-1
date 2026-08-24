@@ -132,17 +132,17 @@ Config.CraftingItems = {
         }
     },
     {
-        name = 'weapon_snspistol',
-        label = ' جلوك 21',
+        name = 'repairkit',
+        label = 'طقم تصليح',
         description = 'يستخدم لتصليح المركبات ميدانياً',
         category = 'tools',
         amount = 1,
-        time = 20000,
-        requiredLevel = 7,
+        time = 7000,
+        requiredLevel = 3,
         ingredients = {
-            { item = 'metalscrap', amount = 99 },
-            { item = 'copperwire', amount = 99 },
-            { item = 'rubber',     amount = 99 },
+            { item = 'metalscrap', amount = 4 },
+            { item = 'copperwire', amount = 2 },
+            { item = 'rubber',     amount = 1 },
         }
     },
 }
