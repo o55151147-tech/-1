@@ -289,6 +289,7 @@ function OpenCraftingMenu()
             counts = result.counts,
             level = result.level,
             maxAmount = Config.MaxCraftAmount,
+            xpPerCraft = Config.Leveling.xpPerCraft,
         })
     end)
 end
@@ -296,6 +297,14 @@ end
 RegisterNUICallback('close', function(_, cb)
     craftMenuOpen = false
     SetNuiFocus(false, false)
+    cb('ok')
+end)
+
+-- تستدعيها الواجهة (زر "إلغاء التصنيع") بنفس ما يسويه زر ESC بالضبط
+local cancelActiveCraft = nil
+
+RegisterNUICallback('cancelCraft', function(_, cb)
+    if cancelActiveCraft then cancelActiveCraft() end
     cb('ok')
 end)
 
@@ -328,12 +337,17 @@ RegisterNUICallback('craft', function(data, cb)
     local ped = PlayerPedId()
     local craftTime = math.min(recipe.time * amount, 60000)
 
-    WatchEscCancel(function() return finished end, function()
+    local function doCancel()
+        if finished then return end
         finished = true
+        cancelActiveCraft = nil
         ClearPedTasks(ped)
         isBusy = false
         SendNUIMessage({ action = 'craftResult', success = false, message = 'تم الإلغاء', item = recipeName })
-    end)
+    end
+
+    cancelActiveCraft = doCancel
+    WatchEscCancel(function() return finished end, doCancel)
 
     QBCore.Functions.Progressbar('craft_item_' .. recipeName, 'جاري تصنيع: ' .. recipe.label .. ' x' .. amount, craftTime, false, true, {
         disableMovement = true,
@@ -347,6 +361,7 @@ RegisterNUICallback('craft', function(data, cb)
     }, {}, {}, function() -- Done
         if finished then return end
         finished = true
+        cancelActiveCraft = nil
         ClearPedTasks(ped)
         QBCore.Functions.TriggerCallback('scrap-crafting:server:craftItem', function(success, message)
             isBusy = false
@@ -361,13 +376,7 @@ RegisterNUICallback('craft', function(data, cb)
                 })
             end)
         end, recipeName, amount)
-    end, function() -- Cancel
-        if finished then return end
-        finished = true
-        ClearPedTasks(ped)
-        isBusy = false
-        SendNUIMessage({ action = 'craftResult', success = false, message = 'تم الإلغاء', item = recipeName })
-    end)
+    end, doCancel) -- Cancel (نفس دالة الإلغاء اللي يستخدمها ESC وزر الواجهة)
 
     cb('ok')
 end)

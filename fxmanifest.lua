@@ -20,8 +20,8 @@ ui_page 'html/index.html'
 
 files {
     'html/index.html',
-    'html/style.css',
-    'html/script.js',
+    'html/assets/*.js',
+    'html/assets/*.css',
     'html/img/*.png', -- أي صورة تحطها بمجلد html/img تنشحن تلقائياً، ما تحتاج تضيفها هنا يدوياً
     'html/fonts/Estedad-Regular.ttf',
     'html/fonts/Estedad-SemiBold.ttf',

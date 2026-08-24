@@ -1,90 +1,15 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<title>Crafting</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div id="app" class="hidden">
-        <div id="menu">
-
-            <aside id="sidebar">
-                <div id="sidebar-top">
-                    <div id="brand">
-                        <img id="brand-logo" src="img/arth-logo.png" alt="ارث">
-                        <div id="brand-text">
-                            <h1>ورشة التصنيع</h1>
-                            <span id="brand-sub">منطقة ارث</span>
-                        </div>
-                    </div>
-                    <button id="closeBtn" title="إغلاق">✕</button>
-                </div>
-
-                <div id="search-box">
-                    <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <input id="searchInput" type="text" placeholder="ابحث عن عنصر...">
-                </div>
-            </aside>
-
-            <main id="content">
-                <div id="content-top">
-                    <nav id="category-tabs"></nav>
-                    <div id="level-widget">
-                        <span id="level-label">المستوى 0</span>
-                        <div id="level-bar"><div id="level-bar-fill"></div></div>
-                        <span id="level-xp-label">0/100</span>
-                    </div>
-                </div>
-
-                <div id="items-grid"></div>
-
-                <div id="empty-state" class="hidden">
-                    <p>لا توجد عناصر مطابقة</p>
-                </div>
-            </main>
-
-            <div id="detail-modal" class="hidden">
-                <div id="detail-modal-backdrop"></div>
-
-                <section id="detail-panel">
-                    <button id="detailCloseBtn" title="إغلاق">✕</button>
-
-                    <div id="detail-icon"></div>
-
-                    <div id="detail-info">
-                        <h2 id="detail-name"></h2>
-                        <p id="detail-desc"></p>
-
-                        <div id="detail-requirements">
-                            <h3>المتطلبات</h3>
-                            <div id="requirements-list"></div>
-                        </div>
-
-                        <div id="detail-footer">
-                            <div id="qty-stepper">
-                                <button id="qtyMinus">−</button>
-                                <input id="qtyInput" type="text" value="1" inputmode="numeric">
-                                <button id="qtyPlus">+</button>
-                            </div>
-                            <button id="craftBtn" class="craft-btn">
-                                <span id="craftBtnLabel">تصنيع</span>
-                            </button>
-                        </div>
-
-                        <div id="progress-wrap" class="hidden">
-                            <div id="progress-bar"><div id="progress-fill"></div></div>
-                            <span id="progress-label">جاري التصنيع...</span>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-        </div>
-    </div>
-
-    <div id="toast-container"></div>
-
-    <script src="script.js"></script>
-</body>
+<!doctype html>
+<html lang="ar" dir="rtl" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ورشة التصنيع - Crafting System</title>
+    <meta name="description" content="واجهة ورشة التصنيع المتطورة للألعاب وخوادم تقمص الأدوار" />
+    <script type="module" crossorigin src="./assets/index-Dj5TezBo.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DYsbanAX.css">
+  </head>
+  <body class="bg-[#0c0d10] text-[#e2e8f0] font-['Estedad',sans-serif] antialiased select-none overflow-hidden">
+    <div id="root"></div>
+  </body>
 </html>
+
