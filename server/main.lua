@@ -115,6 +115,39 @@ AddEventHandler('playerDropped', function()
     lastPropSearch[source] = nil
 end)
 
+-- ============ لوق ديسكورد لعمليات التصنيع ============
+
+local function SendCraftLog(Player, recipe, amount, produced)
+    if not Config.DiscordWebhook or Config.DiscordWebhook == '' then return end
+
+    local charinfo = Player.PlayerData.charinfo
+    local playerName = charinfo and (charinfo.firstname .. ' ' .. charinfo.lastname) or 'غير معروف'
+
+    local ingredientsText = {}
+    for _, ing in ipairs(recipe.ingredients) do
+        table.insert(ingredientsText, ('%dx %s'):format(ing.amount * amount, ing.item))
+    end
+
+    local embed = {
+        {
+            title = '🛠️ عملية تصنيع',
+            color = 3092790,
+            fields = {
+                { name = 'اللاعب', value = playerName, inline = true },
+                { name = 'رقم الهوية (CID)', value = Player.PlayerData.citizenid, inline = true },
+                { name = 'العنصر', value = ('%s (%dx)'):format(recipe.label, produced), inline = true },
+                { name = 'المواد المستخدمة', value = table.concat(ingredientsText, '، '), inline = false },
+            },
+            footer = { text = 'ورشة التصنيع - منطقة ارث' },
+            timestamp = os.date('!%Y-%m-%dT%H:%M:%S'),
+        }
+    }
+
+    PerformHttpRequest(Config.DiscordWebhook, function() end, 'POST',
+        json.encode({ username = 'سجل التصنيع', embeds = embed }),
+        { ['Content-Type'] = 'application/json' })
+end
+
 -- ============ التصنيع ============
 
 QBCore.Functions.CreateCallback('scrap-crafting:server:craftItem', function(source, cb, itemName, amount)
@@ -176,6 +209,7 @@ QBCore.Functions.CreateCallback('scrap-crafting:server:craftItem', function(sour
         local craftXpGained = Config.Leveling.xpPerCraft * amount
         AddCraftXp(src, Player, craftXpGained)
         TriggerClientEvent('QBCore:Notify', src, ('+%d خبرة تصنيع'):format(craftXpGained), 'primary')
+        SendCraftLog(Player, recipe, amount, produced)
         cb(true, 'تم تصنيع ' .. produced .. 'x ' .. recipe.label)
     else
         -- الإنفنتوري ممتلئ، رجّع المواد
